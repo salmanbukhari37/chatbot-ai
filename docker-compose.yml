@@ -1,0 +1,35 @@
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.0-pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-chatbot}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-chatbot}
+      POSTGRES_DB: ${POSTGRES_DB:-chatbot}
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-chatbot} -d ${POSTGRES_DB:-chatbot}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  typesense:
+    image: typesense/typesense:27.1
+    restart: unless-stopped
+    command: ['--data-dir', '/data', '--api-key', '${TYPESENSE_API_KEY:-local-typesense-key}', '--enable-cors']
+    ports:
+      - '8108:8108'
+    volumes:
+      - typesensedata:/data
+    healthcheck:
+      test: ['CMD-SHELL', "bash -c ':> /dev/tcp/127.0.0.1/8108' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
+  typesensedata:

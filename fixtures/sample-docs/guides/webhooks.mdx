@@ -1,0 +1,31 @@
+---
+title: Webhooks
+description: Receive delivery events over HTTP.
+---
+
+Acme sends a `POST` request to your endpoint for every delivery event.
+
+## Event types
+
+| Event | Description |
+| --- | --- |
+| `email.delivered` | The recipient server accepted the email |
+| `email.bounced` | The email permanently failed |
+| `email.opened` | The recipient opened the email |
+
+## Verifying signatures
+
+Every webhook includes an `Acme-Signature` header: an HMAC-SHA256 of the raw body using your webhook secret.
+
+```ts
+import { createHmac, timingSafeEqual } from 'node:crypto';
+
+export function verify(body: string, signature: string, secret: string) {
+  const expected = createHmac('sha256', secret).update(body).digest('hex');
+  return timingSafeEqual(Buffer.from(expected), Buffer.from(signature));
+}
+```
+
+### Retries
+
+Failed deliveries (non-2xx responses) are retried with exponential backoff for up to 24 hours.

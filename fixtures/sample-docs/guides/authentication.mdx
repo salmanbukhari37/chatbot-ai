@@ -1,0 +1,25 @@
+---
+title: Authentication
+description: Authenticate requests with API keys.
+---
+
+import { Callout } from 'fumadocs-ui/components/callout';
+
+Acme uses bearer API keys. Create keys in the dashboard under **Settings → API Keys**.
+
+<Callout type="warn" title="Keep keys secret">
+  Never expose a secret key in client-side code. Use `<Callout>` sparingly.
+</Callout>
+
+## Sending the key
+
+Pass the key in the `Authorization` header:
+
+```bash
+curl https://api.acme.dev/v1/emails \
+  -H "Authorization: Bearer $ACME_API_KEY"
+```
+
+## Rotating keys
+
+You can have two active keys at once. Create the new key, deploy it, then revoke the old one. Revoked keys stop working within 60 seconds.

@@ -1,0 +1,21 @@
+---
+title: Introduction
+description: Welcome to the Acme API documentation.
+---
+
+import { Card, Cards } from 'fumadocs-ui/components/card';
+
+Acme lets you send transactional email through a simple REST API.
+
+<Cards>
+  <Card title="Quickstart" href="/docs/quickstart" description="Send your first email in five minutes" />
+  <Card title="Authentication" href="/docs/guides/authentication" />
+</Cards>
+
+## Base URL
+
+All requests are made to `https://api.acme.dev/v1`. Requests over plain HTTP are rejected.
+
+## Rate limits
+
+Each API key may make **100 requests per second**. Exceeding the limit returns HTTP `429 Too Many Requests` with a `Retry-After` header.

@@ -1,0 +1,16 @@
+---
+title: Errors
+description: Error codes returned by the Acme API.
+---
+
+# Errors
+
+Acme uses conventional HTTP status codes. Error bodies have the shape `{ "error": { "code": string, "message": string } }`.
+
+## Common codes
+
+- `400 invalid_request` — the body failed validation.
+- `401 unauthorized` — the API key is missing or revoked.
+- `404 not_found` — the resource does not exist.
+- `429 rate_limited` — see the rate limit section on the introduction page.
+- `500 internal_error` — retry with backoff; contact support if it persists.

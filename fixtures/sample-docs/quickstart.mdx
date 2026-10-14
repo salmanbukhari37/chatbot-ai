@@ -1,0 +1,47 @@
+---
+title: Quickstart
+description: Send your first email with Acme.
+---
+
+import { Steps, Step } from 'fumadocs-ui/components/steps';
+import { Tab, Tabs } from 'fumadocs-ui/components/tabs';
+
+{/* This page is used by the onboarding flow */}
+
+<Steps>
+<Step>
+
+### Install the SDK
+
+<Tabs items={['npm', 'pnpm']}>
+  <Tab value="npm">
+    ```bash
+    npm install @acme/email
+    ```
+  </Tab>
+  <Tab value="pnpm">
+    ```bash
+    pnpm add @acme/email
+    ```
+  </Tab>
+</Tabs>
+
+</Step>
+<Step>
+
+### Send an email
+
+```ts title="send.ts"
+import { Acme } from '@acme/email';
+
+const acme = new Acme(process.env.ACME_API_KEY);
+await acme.emails.send({
+  from: 'hello@example.com',
+  to: 'user@example.com',
+  subject: 'Hi <there>',
+  html: '<p>Welcome!</p>',
+});
+```
+
+</Step>
+</Steps>

@@ -1,0 +1,1765 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Agentic RAG — Node.js + Fumadocs Plan</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", system-ui, sans-serif;
+        background: #0f1117;
+        color: #e2e8f0;
+        padding: 32px 24px;
+        line-height: 1.6;
+      }
+      h1 {
+        font-size: 26px;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 4px;
+      }
+      .subtitle {
+        color: #64748b;
+        font-size: 13px;
+        margin-bottom: 10px;
+      }
+      .banner {
+        background: #0d2818;
+        border: 1px solid #16a34a;
+        border-radius: 10px;
+        padding: 14px 18px;
+        margin-bottom: 40px;
+        font-size: 13px;
+        color: #86efac;
+        display: flex;
+        gap: 10px;
+      }
+      .section-title {
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.4px;
+        color: #475569;
+        margin-bottom: 18px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .section-title::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: #1e293b;
+      }
+
+      /* cards */
+      .grid3 {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        margin-bottom: 40px;
+      }
+      .card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 18px;
+      }
+      .card .icon {
+        font-size: 20px;
+        margin-bottom: 8px;
+      }
+      .card h4 {
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 6px;
+      }
+      .card p {
+        font-size: 12px;
+        color: #64748b;
+      }
+      .tag {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        display: inline-block;
+        margin-top: 6px;
+      }
+      .tag-g {
+        background: #0d2818;
+        color: #4ade80;
+        border: 1px solid #16a34a;
+      }
+      .tag-b {
+        background: #0c1a2e;
+        color: #60a5fa;
+        border: 1px solid #1d4ed8;
+      }
+      .tag-o {
+        background: #1c0f00;
+        color: #fb923c;
+        border: 1px solid #c2410c;
+      }
+
+      /* integration diagram */
+      .int-box {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 14px;
+        padding: 24px;
+        margin-bottom: 40px;
+      }
+      .int-layer {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 8px;
+        align-items: stretch;
+      }
+      .int-lbl {
+        font-size: 10px;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        writing-mode: vertical-rl;
+        transform: rotate(180deg);
+        min-width: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .int-cells {
+        display: flex;
+        gap: 10px;
+        flex: 1;
+      }
+      .cell {
+        flex: 1;
+        border-radius: 10px;
+        padding: 12px 14px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      .cell small {
+        font-size: 11px;
+        font-weight: 400;
+        opacity: 0.75;
+        display: block;
+        margin-top: 4px;
+      }
+      .cell-exist {
+        background: #0d2818;
+        border: 2px solid #16a34a;
+        color: #86efac;
+      }
+      .cell-new {
+        background: #1a1a2e;
+        border: 2px solid #7c3aed;
+        color: #c4b5fd;
+      }
+      .cell-svc {
+        background: #1e293b;
+        border: 1px solid #475569;
+        color: #94a3b8;
+      }
+      .cell-ai {
+        background: #1a1a00;
+        border: 1px solid #ca8a04;
+        color: #fde68a;
+      }
+      .cell-lbl-g {
+        font-size: 10px;
+        font-weight: 800;
+        color: #4ade80;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .cell-lbl-p {
+        font-size: 10px;
+        font-weight: 800;
+        color: #a78bfa;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .cell-lbl-y {
+        font-size: 10px;
+        font-weight: 800;
+        color: #fde68a;
+        margin-bottom: 4px;
+      }
+      .arr {
+        text-align: center;
+        padding-left: 36px;
+        color: #334155;
+        font-size: 18px;
+        margin: -2px 0;
+      }
+      .arr small {
+        font-size: 11px;
+        color: #334155;
+        margin-left: 8px;
+      }
+
+      /* fumadocs code cards */
+      .fuma-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-bottom: 40px;
+      }
+      .fuma-card {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 20px;
+      }
+      .fuma-card h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 10px;
+      }
+      .fuma-card p {
+        font-size: 12px;
+        color: #64748b;
+        margin-bottom: 10px;
+      }
+      .fuma-card pre {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 14px;
+        font-size: 12px;
+        font-family: "Courier New", monospace;
+        overflow-x: auto;
+        line-height: 1.75;
+        white-space: pre;
+      }
+      .kw {
+        color: #ff7b72;
+      }
+      .str {
+        color: #a5d6ff;
+      }
+      .fn {
+        color: #d2a8ff;
+      }
+      .prop {
+        color: #79c0ff;
+      }
+      .cm {
+        color: #475569;
+      }
+      .val {
+        color: #a5f3fc;
+      }
+
+      /* pipeline flow */
+      .flow-box {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 24px;
+        margin-bottom: 40px;
+      }
+      .flow {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .fs {
+        background: #0f172a;
+        border: 1px solid #334155;
+        border-radius: 8px;
+        padding: 10px 14px;
+        font-size: 12px;
+        color: #e2e8f0;
+      }
+      .fs-p {
+        border-color: #6366f1 !important;
+        color: #a5b4fc !important;
+      }
+      .fs-g {
+        border-color: #22c55e !important;
+        color: #86efac !important;
+      }
+      .fa {
+        color: #475569;
+        font-size: 16px;
+        padding: 0 2px;
+      }
+      .agent-loop {
+        background: #0f172a;
+        border: 1px solid #6366f1;
+        border-radius: 8px;
+        padding: 14px;
+        margin-top: 16px;
+      }
+
+      /* prompt box */
+      .prompt-wrap {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 14px;
+        margin-bottom: 40px;
+        overflow: hidden;
+      }
+      .prompt-header {
+        background: #161b22;
+        border-bottom: 1px solid #30363d;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .dots {
+        display: flex;
+        gap: 6px;
+      }
+      .dots span {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .d1 {
+        background: #ff5f57;
+      }
+      .d2 {
+        background: #ffbd2e;
+      }
+      .d3 {
+        background: #28c840;
+      }
+      .prompt-lbl {
+        font-size: 12px;
+        color: #8b949e;
+        font-weight: 600;
+        margin-left: 10px;
+      }
+      .copy-btn {
+        background: #21262d;
+        border: 1px solid #30363d;
+        color: #8b949e;
+        font-size: 11px;
+        padding: 5px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        user-select: none;
+        transition: background 0.15s;
+      }
+      .copy-btn:hover {
+        background: #30363d;
+        color: #e2e8f0;
+      }
+      .prompt-body {
+        padding: 28px;
+        font-size: 13px;
+        color: #c9d1d9;
+        line-height: 1.9;
+      }
+      .ph {
+        color: #58a6ff;
+        font-weight: 700;
+        font-size: 14px;
+        display: block;
+        margin: 20px 0 8px;
+      }
+      .ph:first-child {
+        margin-top: 0;
+      }
+      .pblock {
+        background: #0f172a;
+        border: 1px solid #1e293b;
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin-bottom: 12px;
+      }
+      .pcode {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        font-family: "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.9;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .pg {
+        color: #3fb950;
+        font-weight: 600;
+      }
+      .po {
+        color: #ffa657;
+      }
+      .pp {
+        color: #d2a8ff;
+      }
+      .row2 {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 4px 0;
+      }
+      .tree-wrap {
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 16px 20px;
+        margin-bottom: 12px;
+        font-family: "Courier New", monospace;
+        font-size: 12.5px;
+        line-height: 2;
+      }
+      .t-root {
+        color: #ffd700;
+        font-weight: 700;
+      }
+      .t-dir {
+        color: #58a6ff;
+      }
+      .t-file {
+        color: #79c0ff;
+      }
+      .t-cfg {
+        color: #ffa657;
+      }
+      .t-cm {
+        color: #475569;
+      }
+      .li {
+        display: flex;
+        gap: 6px;
+        align-items: flex-start;
+        font-size: 13px;
+        padding: 3px 0;
+      }
+      .li-num {
+        color: #4ade80;
+        font-weight: 700;
+        min-width: 18px;
+      }
+      .step-grid {
+        margin-bottom: 40px;
+      }
+      .step {
+        display: flex;
+        gap: 14px;
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 10px;
+      }
+      .step-n {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #6366f1;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .step h4 {
+        font-size: 13px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 4px;
+      }
+      .step p {
+        font-size: 12px;
+        color: #64748b;
+      }
+      .step code {
+        background: #0f172a;
+        border: 1px solid #334155;
+        color: #a5f3fc;
+        font-size: 11px;
+        padding: 4px 10px;
+        border-radius: 6px;
+        display: inline-block;
+        margin-top: 6px;
+        font-family: monospace;
+      }
+
+      /* stack table */
+      .tbl {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 40px;
+      }
+      .tbl th {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #475569;
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 1px solid #1e293b;
+      }
+      .tbl td {
+        padding: 11px 14px;
+        font-size: 13px;
+        color: #cbd5e1;
+        border-bottom: 1px solid #0f172a;
+      }
+      .tbl tr:hover td {
+        background: #1e293b;
+      }
+      .tech {
+        color: #fff;
+        font-weight: 600;
+      }
+      .why {
+        color: #64748b;
+        font-size: 12px;
+      }
+      .badge {
+        font-size: 10px;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 20px;
+      }
+      .b-req {
+        background: #7f1d1d;
+        color: #fca5a5;
+      }
+      .b-free {
+        background: #14532d;
+        color: #86efac;
+      }
+      .b-opt {
+        background: #1e3a5f;
+        color: #93c5fd;
+      }
+      .b-have {
+        background: #1a1500;
+        color: #fde68a;
+        border: 1px solid #ca8a04;
+      }
+
+      /* env table */
+      .env-key {
+        color: #ffa657;
+        font-family: monospace;
+      }
+      .env-val {
+        color: #a5f3fc;
+        font-family: monospace;
+      }
+      .env-src {
+        color: #64748b;
+        font-size: 11px;
+      }
+      .env-have {
+        color: #fde68a;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .env-req {
+        color: #fca5a5;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .env-opt {
+        color: #93c5fd;
+        font-size: 11px;
+      }
+
+      /* milestones */
+      .milestones {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+        margin-bottom: 40px;
+      }
+      .ms {
+        background: #1e293b;
+        border: 1px solid #334155;
+        border-radius: 12px;
+        padding: 18px;
+        position: relative;
+        overflow: hidden;
+      }
+      .ms::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+      }
+      .ms1::before {
+        background: #6366f1;
+      }
+      .ms2::before {
+        background: #22c55e;
+      }
+      .ms3::before {
+        background: #f97316;
+      }
+      .ms4::before {
+        background: #ec4899;
+      }
+      .ms .wk {
+        font-size: 11px;
+        font-weight: 700;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+      }
+      .ms h4 {
+        font-size: 14px;
+        font-weight: 700;
+        color: #fff;
+        margin: 6px 0 12px;
+      }
+      .ms ul {
+        list-style: none;
+      }
+      .ms ul li {
+        font-size: 12px;
+        color: #94a3b8;
+        padding: 4px 0;
+        border-bottom: 1px solid #0f172a;
+        display: flex;
+        gap: 6px;
+      }
+      .ms ul li:last-child {
+        border-bottom: none;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🧠 Agentic RAG — Updated Plan</h1>
+    <p class="subtitle">
+      Node.js backend · Fumadocs frontend (existing) · OpenAI company key
+    </p>
+    <div class="banner">
+      ✅
+      <div>
+        <strong>Updated context:</strong> Frontend = existing Fumadocs portal
+        (no rebuild). Backend = Node.js + TypeScript. OpenAI key =
+        company-provided. Focus = wiring Agentic RAG backend into Fumadocs via
+        API.
+      </div>
+    </div>
+
+    <!-- ─── 01 ─── -->
+    <div class="section-title">01 — Your Setup & What Changes</div>
+    <div class="grid3">
+      <div class="card">
+        <div class="icon">📚</div>
+        <h4>Frontend — Already Done</h4>
+        <p>
+          Your Fumadocs portal stays as-is. You only add one React chat widget
+          component that calls your new backend API.
+        </p>
+        <span class="tag tag-g">✓ No rebuild needed</span>
+      </div>
+      <div class="card">
+        <div class="icon">⚙️</div>
+        <h4>Backend — What You Build</h4>
+        <p>
+          A Node.js + TypeScript API server. Handles chat, ingestion, agentic
+          retrieval loop, and SSE streaming. Fumadocs calls this.
+        </p>
+        <span class="tag tag-b">New — Node.js + TypeScript</span>
+      </div>
+      <div class="card">
+        <div class="icon">🔑</div>
+        <h4>OpenAI — Company Key</h4>
+        <p>
+          Already have it. Powers GPT-4o (generation), text-embedding-3-large
+          (embeddings), and GPT-4o-mini (query rewriting).
+        </p>
+        <span class="tag tag-o">✓ Key already provided</span>
+      </div>
+    </div>
+
+    <!-- ─── 02 ─── -->
+    <div class="section-title">02 — How Everything Connects</div>
+    <div class="int-box">
+      <div class="int-layer">
+        <div class="int-lbl">User</div>
+        <div class="int-cells">
+          <div class="cell cell-exist">
+            <div class="cell-lbl-g">Existing — no changes</div>
+            🌐 Fumadocs Portal (Next.js)
+            <small
+              >Your docs site. Add one chat widget component pointing at your
+              backend URL.</small
+            >
+          </div>
+        </div>
+      </div>
+      <div class="arr">
+        ↕ <small>POST /chat/stream · SSE response · POST /feedback</small>
+      </div>
+      <div class="int-layer">
+        <div class="int-lbl">Backend</div>
+        <div class="int-cells">
+          <div class="cell cell-new">
+            <div class="cell-lbl-p">New — you build this</div>
+            ⚙️ Node.js + TypeScript API (Hono)
+            <small
+              >Chat endpoint · Ingestion pipeline · Agentic loop · Streaming ·
+              Auth · Rate limiting</small
+            >
+          </div>
+        </div>
+      </div>
+      <div class="arr">
+        ↕
+        <small
+          >OpenAI SDK · pgvector queries · Typesense search · Redis
+          get/set</small
+        >
+      </div>
+      <div class="int-layer">
+        <div class="int-lbl">Services</div>
+        <div class="int-cells">
+          <div class="cell cell-ai">
+            <div class="cell-lbl-y">✓ Company Key</div>
+            🤖 OpenAI API
+            <small>GPT-4o · text-embedding-3-large · GPT-4o-mini</small>
+          </div>
+          <div class="cell cell-svc">
+            🗄️ PostgreSQL + pgvector<small>Vector store for embeddings</small>
+          </div>
+          <div class="cell cell-svc">
+            📦 Typesense<small>BM25 keyword search</small>
+          </div>
+          <div class="cell cell-svc">
+            ⚡ Redis<small>Conversation memory</small>
+          </div>
+        </div>
+      </div>
+      <div class="arr">
+        ↑
+        <small
+          >All run via Docker locally · Supabase + Upstash for production</small
+        >
+      </div>
+      <div class="int-layer">
+        <div class="int-lbl">Ingestion</div>
+        <div class="int-cells">
+          <div class="cell cell-exist" style="flex: 1.2">
+            <div class="cell-lbl-g">Source — your existing content</div>
+            📄 Fumadocs MDX files
+            <small
+              >Your /content folder. Ingestion reads it directly — no export
+              needed.</small
+            >
+          </div>
+          <div class="cell cell-new" style="flex: 0.8">
+            <div class="cell-lbl-p">New pipeline</div>
+            🔄 Ingestion Script
+            <small
+              >Parse MDX → chunk → embed → upsert pgvector + Typesense</small
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 03 ─── -->
+    <div class="section-title">03 — Fumadocs Integration (What You Add)</div>
+    <div class="fuma-grid">
+      <div class="fuma-card">
+        <h4>Chat Widget (add to Fumadocs)</h4>
+        <p>
+          One React component using Vercel AI SDK
+          <code
+            style="
+              background: #0f172a;
+              color: #a5f3fc;
+              padding: 2px 6px;
+              border-radius: 4px;
+              font-size: 11px;
+            "
+            >useChat</code
+          >
+          hook.
+        </p>
+        <pre><span class="cm">// components/chat-widget.tsx</span>
+<span class="kw">import</span> { useChat } <span class="kw">from</span> <span class="str">'ai/react'</span>
+
+<span class="kw">export function</span> <span class="fn">ChatWidget</span>() {
+  <span class="kw">const</span> { messages, input,
+          handleSubmit, isLoading } = <span class="fn">useChat</span>({
+    <span class="prop">api</span>: <span class="str">'/api/chat/stream'</span>,
+  })
+  <span class="kw">return</span> (
+    &lt;<span class="fn">ChatUI</span>
+      <span class="prop">messages</span>={messages}
+      <span class="prop">onSubmit</span>={handleSubmit}
+      <span class="prop">isLoading</span>={isLoading}
+    /&gt;
+  )
+}</pre>
+      </div>
+      <div class="fuma-card">
+        <h4>Ingestion reads your MDX directly</h4>
+        <p>
+          No export needed — ingestion script reads your
+          <code
+            style="
+              background: #0f172a;
+              color: #a5f3fc;
+              padding: 2px 6px;
+              border-radius: 4px;
+              font-size: 11px;
+            "
+            >content/</code
+          >
+          folder as-is.
+        </p>
+        <pre><span class="cm">// ingestion/parsers/mdx.ts</span>
+<span class="kw">import</span> matter <span class="kw">from</span> <span class="str">'gray-matter'</span>
+<span class="kw">import</span> { readFileSync } <span class="kw">from</span> <span class="str">'fs'</span>
+
+<span class="kw">export function</span> <span class="fn">parseMDXFile</span>(path: <span class="prop">string</span>) {
+  <span class="kw">const</span> raw = <span class="fn">readFileSync</span>(path, <span class="str">'utf-8'</span>)
+  <span class="kw">const</span> { data, content } = <span class="fn">matter</span>(raw)
+  <span class="kw">return</span> {
+    <span class="prop">title</span>: data.title,
+    <span class="prop">slug</span>: data.slug,
+    <span class="prop">content</span>,
+    <span class="prop">lastModified</span>: data.date,
+  }
+}</pre>
+      </div>
+      <div class="fuma-card">
+        <h4>CORS — allow Fumadocs origin</h4>
+        <p>Backend must allow requests from your Fumadocs domain.</p>
+        <pre><span class="cm">// index.ts</span>
+<span class="kw">import</span> { cors } <span class="kw">from</span> <span class="str">'hono/cors'</span>
+
+app.<span class="fn">use</span>(<span class="str">'*'</span>, <span class="fn">cors</span>({
+  <span class="prop">origin</span>: [
+    <span class="str">'http://localhost:3000'</span>,
+    <span class="str">'https://your-docs.com'</span>,
+  ],
+  <span class="prop">credentials</span>: <span class="kw">true</span>,
+}))</pre>
+      </div>
+      <div class="fuma-card">
+        <h4>Next.js proxy route (optional)</h4>
+        <p>Route in Fumadocs to hide your backend URL from the browser.</p>
+        <pre><span class="cm">// app/api/chat/stream/route.ts</span>
+<span class="kw">export async function</span> <span class="fn">POST</span>(req: <span class="prop">Request</span>) {
+  <span class="kw">const</span> res = <span class="kw">await</span> <span class="fn">fetch</span>(
+    <span class="str">`${process.env.BACKEND_URL}/chat/stream`</span>,
+    {
+      <span class="prop">method</span>: <span class="str">'POST'</span>,
+      <span class="prop">body</span>: req.body,
+      <span class="prop">headers</span>: req.headers,
+    }
+  )
+  <span class="kw">return new</span> <span class="fn">Response</span>(res.body, {
+    <span class="prop">headers</span>: { <span class="str">'Content-Type'</span>:
+                <span class="str">'text/event-stream'</span> },
+  })
+}</pre>
+      </div>
+    </div>
+
+    <!-- ─── 04 ─── -->
+    <div class="section-title">04 — Agentic Query Pipeline</div>
+    <div class="flow-box">
+      <div style="font-size: 13px; color: #64748b; margin-bottom: 14px">
+        Every message from Fumadocs goes through this Node.js pipeline:
+      </div>
+      <div class="flow">
+        <div class="fs fs-g">
+          1. POST /chat/stream<br /><small style="font-size: 10px"
+            >from Fumadocs</small
+          >
+        </div>
+        <div class="fa">→</div>
+        <div class="fs">
+          2. Load History<br /><small style="font-size: 10px"
+            >Redis · session_id</small
+          >
+        </div>
+        <div class="fa">→</div>
+        <div class="fs fs-p">
+          3. Rewrite Query<br /><small style="font-size: 10px"
+            >GPT-4o-mini</small
+          >
+        </div>
+        <div class="fa">→</div>
+        <div class="fs">
+          4. Router<br /><small style="font-size: 10px"
+            >simple vs agentic</small
+          >
+        </div>
+        <div class="fa">→</div>
+        <div class="fs fs-p">
+          5. Agent Loop<br /><small style="font-size: 10px"
+            >GPT-4o + tools</small
+          >
+        </div>
+        <div class="fa">→</div>
+        <div class="fs fs-g">
+          6. Stream SSE<br /><small style="font-size: 10px"
+            >tokens + citations</small
+          >
+        </div>
+        <div class="fa">→</div>
+        <div class="fs">
+          7. Save History<br /><small style="font-size: 10px">Redis</small>
+        </div>
+      </div>
+      <div class="agent-loop">
+        <div
+          style="
+            font-size: 12px;
+            font-weight: 700;
+            color: #818cf8;
+            margin-bottom: 10px;
+          "
+        >
+          🔄 Agent Loop — OpenAI function calling (step 5):
+        </div>
+        <div class="flow">
+          <div class="fs fs-p" style="font-size: 11px">GPT-4o decides</div>
+          <div class="fa">→</div>
+          <div class="fs fs-g" style="font-size: 11px">
+            searchDocs(query)<br />pgvector + Typesense
+          </div>
+          <div class="fa">→</div>
+          <div class="fs fs-g" style="font-size: 11px">
+            getPage(slug)<br />full page
+          </div>
+          <div class="fa">→</div>
+          <div class="fs fs-g" style="font-size: 11px">
+            searchCode(query)<br />code blocks
+          </div>
+          <div class="fa">→</div>
+          <div class="fs fs-p" style="font-size: 11px">
+            Need more?<br />loop again
+          </div>
+          <div class="fa">→</div>
+          <div class="fs fs-g" style="font-size: 11px">
+            Answer +<br />citations
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 05 ─── -->
+    <div class="section-title">05 — Claude Prompt (copy &amp; send)</div>
+    <div class="prompt-wrap">
+      <div class="prompt-header">
+        <div style="display: flex; align-items: center">
+          <div class="dots">
+            <span class="d1"></span><span class="d2"></span
+            ><span class="d3"></span>
+          </div>
+          <span class="prompt-lbl"
+            >claude-prompt.txt — paste directly into Claude</span
+          >
+        </div>
+        <button
+          class="copy-btn"
+          onclick="
+            const text = document.getElementById('prompt-text').innerText;
+            navigator.clipboard.writeText(text).then(() => {
+              this.textContent = '✓ Copied!';
+              this.style.color = '#4ade80';
+              this.style.borderColor = '#16a34a';
+              setTimeout(() => {
+                this.textContent = '📋 Copy prompt';
+                this.style.color = '';
+                this.style.borderColor = '';
+              }, 2500);
+            });
+          "
+        >
+          📋 Copy prompt
+        </button>
+      </div>
+
+      <div class="prompt-body" id="prompt-text">
+        <span class="ph">## Project Context</span>
+        I have an existing documentation portal built with
+        <span class="po">Fumadocs</span> (Next.js-based). I want to add an AI
+        chatbot backend that gives users an agentic RAG experience — similar to
+        Mintlify's AI Assistant. The frontend (Fumadocs) already exists and I
+        won't rebuild it. I just need a backend API it can call.
+
+        <span class="ph">## Architecture Decision</span>
+        <div class="pblock">
+          <div>
+            <span class="pg">Frontend:</span> &nbsp;Existing Fumadocs portal —
+            add one React chat widget that calls the backend API
+          </div>
+          <div>
+            <span class="pg">Backend:</span> &nbsp;Node.js + TypeScript (NOT
+            Python)
+          </div>
+          <div>
+            <span class="pg">Retrieval:</span> &nbsp;Agentic RAG — LLM uses tool
+            calling (not one-pass RAG)
+          </div>
+          <div>
+            <span class="pg">LLM:</span> &nbsp;OpenAI GPT-4o (company-provided
+            key, cost is not a constraint)
+          </div>
+          <div>
+            <span class="pg">Embeddings:</span> &nbsp;OpenAI
+            text-embedding-3-large
+          </div>
+          <div>
+            <span class="pg">Query rewriting:</span> &nbsp;GPT-4o-mini (cheap
+            fast model for pre-retrieval step)
+          </div>
+        </div>
+
+        <span class="ph">## Tech Stack (decided)</span>
+        <div class="pcode">
+          <span class="prop">Runtime:</span> Node.js 20 + TypeScript
+          <span class="prop">Framework:</span> Hono (fast, lightweight, native
+          SSE support) <span class="prop">LLM SDK:</span> openai (official npm
+          package) <span class="prop">Vector DB:</span> PostgreSQL 16 + pgvector
+          extension <span class="prop">Keyword search:</span> Typesense (BM25 —
+          lightweight, Docker-based) <span class="prop">Reranker:</span> Cohere
+          Rerank v3.5 (free tier sufficient)
+          <span class="prop">Memory:</span> Redis (ioredis) — conversation
+          history, TTL-based <span class="prop">Streaming:</span> Server-Sent
+          Events (SSE) — Vercel AI SDK compatible
+          <span class="prop">Observability:</span> Langfuse (optional, include
+          the hooks) <span class="prop">Config:</span> dotenv + zod for typed
+          env validation
+        </div>
+
+        <span class="ph">## Project Structure to Create</span>
+        <div class="tree-wrap">
+          <span class="t-root">chatbot-ai/</span>
+          <span class="t-dir">├── src/</span>
+          │ ├── <span class="t-file">index.ts</span>
+          <span class="t-cm"># Server entry point</span> │ ├──
+          <span class="t-file">config.ts</span>
+          <span class="t-cm"># Zod-validated env config</span> │ ├──
+          <span class="t-dir">routes/</span> │ │ ├──
+          <span class="t-file">chat.ts</span>
+          <span class="t-cm"># POST /chat/stream (SSE)</span> │ │ ├──
+          <span class="t-file">ingest.ts</span>
+          <span class="t-cm"># POST /ingest (trigger re-index)</span> │ │ └──
+          <span class="t-file">feedback.ts</span>
+          <span class="t-cm"># POST /feedback</span> │ ├──
+          <span class="t-dir">services/</span> │ │ ├──
+          <span class="t-file">agent.ts</span>
+          <span class="t-cm"># Agentic loop (OpenAI function calling)</span> │ │
+          ├── <span class="t-file">retrieval.ts</span>
+          <span class="t-cm"># Hybrid search (pgvector + Typesense)</span> │ │
+          ├── <span class="t-file">reranker.ts</span>
+          <span class="t-cm"># Cohere reranker</span> │ │ ├──
+          <span class="t-file">embeddings.ts</span>
+          <span class="t-cm"># OpenAI embeddings wrapper</span> │ │ └──
+          <span class="t-file">memory.ts</span>
+          <span class="t-cm"># Redis conversation history</span> │ ├──
+          <span class="t-dir">ingestion/</span> │ │ ├──
+          <span class="t-file">pipeline.ts</span>
+          <span class="t-cm"># Main ingestion orchestrator</span> │ │ ├──
+          <span class="t-file">chunker.ts</span>
+          <span class="t-cm"># Semantic chunking (heading-aware)</span> │ │ └──
+          <span class="t-dir">parsers/</span> │ │ ├──
+          <span class="t-file">mdx.ts</span>
+          <span class="t-cm"># Parse .mdx files (Fumadocs format)</span> │ │ ├──
+          <span class="t-file">markdown.ts</span>
+          <span class="t-cm"># Parse .md files</span> │ │ └──
+          <span class="t-file">html.ts</span>
+          <span class="t-cm"># Parse HTML pages</span> │ ├──
+          <span class="t-dir">db/</span> │ │ ├──
+          <span class="t-file">postgres.ts</span>
+          <span class="t-cm"># pg pool + pgvector setup</span> │ │ ├──
+          <span class="t-file">redis.ts</span>
+          <span class="t-cm"># ioredis client</span> │ │ └──
+          <span class="t-file">typesense.ts</span>
+          <span class="t-cm"># Typesense client</span> │ └──
+          <span class="t-dir">types/</span> │ └──
+          <span class="t-file">index.ts</span>
+          <span class="t-cm"># Shared TypeScript types</span> ├──
+          <span class="t-cfg">docker-compose.yml</span>
+          <span class="t-cm"># Postgres+pgvector, Redis, Typesense</span> ├──
+          <span class="t-cfg">package.json</span> ├──
+          <span class="t-cfg">tsconfig.json</span> └──
+          <span class="t-cfg">.env.example</span>
+        </div>
+
+        <span class="ph">## Ingestion Pipeline Requirements</span>
+        <div class="pblock">
+          <div class="li">
+            <span>📄</span>Parse MDX files using
+            <span class="po">gray-matter</span> — extract frontmatter: title,
+            slug, description
+          </div>
+          <div class="li">
+            <span>🧹</span>Strip MDX/JSX syntax, keep clean markdown text
+          </div>
+          <div class="li">
+            <span>✂️</span>Chunk semantically — split on H2/H3 headings, keep
+            heading as chunk title prefix
+          </div>
+          <div class="li">
+            <span>🎯</span>Target: <span class="po">512 tokens per chunk</span>,
+            64-token overlap
+          </div>
+          <div class="li">
+            <span>🏷️</span>Metadata per chunk:
+            <span class="pp"
+              >{ title, slug, heading, url, contentHash, lastModified }</span
+            >
+          </div>
+          <div class="li">
+            <span>🔢</span>Embeddings:
+            <span class="po">text-embedding-3-large</span> via OpenAI
+          </div>
+          <div class="li">
+            <span>💾</span>Upsert to pgvector — skip if contentHash unchanged
+            (idempotent)
+          </div>
+          <div class="li"><span>🔍</span>Index text in Typesense for BM25</div>
+          <div class="li">
+            <span>▶️</span>Run as:
+            <code
+              style="
+                background: #1e293b;
+                color: #a5f3fc;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-family: monospace;
+                font-size: 11px;
+              "
+              >npx ts-node src/ingestion/pipeline.ts --source
+              ../docs/content</code
+            >
+          </div>
+        </div>
+
+        <span class="ph">## Agentic Loop Requirements</span>
+        Use <strong style="color: #fff">OpenAI function calling</strong> (not
+        LangChain) to keep it lean:
+        <div class="pcode">
+          <span class="kw">const</span> <span class="val">tools</span> = [ {
+          <span class="prop">name</span>:
+          <span class="str">"search_docs"</span>,
+          <span class="prop">description</span>:
+          <span class="str"
+            >"Search documentation by semantic meaning and keywords"</span
+          >, <span class="prop">parameters</span>: {
+          <span class="prop">query</span>: string,
+          <span class="prop">top_k</span>?: number } }, {
+          <span class="prop">name</span>: <span class="str">"get_page"</span>,
+          <span class="prop">description</span>:
+          <span class="str"
+            >"Get the full content of a specific doc page by its slug"</span
+          >, <span class="prop">parameters</span>: {
+          <span class="prop">slug</span>: string } }, {
+          <span class="prop">name</span>:
+          <span class="str">"search_code_examples"</span>,
+          <span class="prop">description</span>:
+          <span class="str"
+            >"Search specifically for code examples and snippets"</span
+          >, <span class="prop">parameters</span>: {
+          <span class="prop">query</span>: string } } ]
+        </div>
+        <div class="pblock">
+          <div class="li">
+            <span>🔄</span>Loop: GPT-4o calls tools → execute → append result →
+            repeat until no more tool calls → stream final answer
+          </div>
+          <div class="li">
+            <span>🛑</span>Max iterations: <span class="po">5</span> (prevent
+            runaway loops)
+          </div>
+          <div class="li">
+            <span>⚡</span>Router: short/simple query → skip agent, do 1-pass
+            RAG directly (saves tokens)
+          </div>
+        </div>
+
+        <span class="ph">## Hybrid Search Requirements</span>
+        <div class="pblock">
+          <div class="li">
+            <span class="po">Step 1</span>Embed the query with
+            text-embedding-3-large
+          </div>
+          <div class="li">
+            <span class="po">Step 2</span>Run pgvector cosine similarity search
+            → top 20 results
+          </div>
+          <div class="li">
+            <span class="po">Step 3</span>Run Typesense BM25 search → top 20
+            results
+          </div>
+          <div class="li">
+            <span class="po">Step 4</span>Merge and deduplicate by slug (keep
+            higher score)
+          </div>
+          <div class="li">
+            <span class="po">Step 5</span>Fusion:
+            <code
+              style="
+                background: #1e293b;
+                color: #a5f3fc;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-family: monospace;
+                font-size: 11px;
+              "
+              >score = 0.6 * vectorScore + 0.4 * bm25Score</code
+            >
+          </div>
+          <div class="li">
+            <span class="po">Step 6</span>Pass top 20 to Cohere Rerank → return
+            top 5
+          </div>
+          <div class="li">
+            <span class="po">Returns</span
+            ><code
+              style="
+                background: #1e293b;
+                color: #d2a8ff;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-family: monospace;
+                font-size: 11px;
+              "
+              >{ content, title, slug, url, score }[]</code
+            >
+          </div>
+        </div>
+
+        <span class="ph">## SSE Streaming Endpoint</span>
+        <div class="pblock" style="margin-bottom: 10px">
+          <div>
+            <strong style="color: #fff">POST</strong>
+            <span class="po">/chat/stream</span> &nbsp;·&nbsp; Request:
+            <span class="pp">{ message: string, sessionId: string }</span>
+            &nbsp;·&nbsp; Response:
+            <span style="color: #4ade80">text/event-stream</span>
+          </div>
+        </div>
+        <div class="pcode">
+          <span class="cm"
+            >// Stream event types — compatible with Vercel AI SDK useChat</span
+          >
+          <span class="str">data: {"type":"token","content":"..."}</span>
+          <span class="cm">// each LLM token</span>
+          <span class="str"
+            >data: {"type":"tool_call","tool":"search_docs"}</span
+          >
+          <span class="cm">// agent thinking</span>
+          <span class="str">data: {"type":"sources","data":[{url,title}]}</span>
+          <span class="cm">// citations</span>
+          <span class="str">data: {"type":"done"}</span>
+          <span class="cm">// end of stream</span>
+        </div>
+
+        <span class="ph">## Conversation Memory</span>
+        <div class="pblock">
+          <div class="li">
+            <span>🔑</span>Redis key:
+            <code
+              style="
+                background: #1e293b;
+                color: #ffa657;
+                padding: 2px 8px;
+                border-radius: 4px;
+                font-family: monospace;
+                font-size: 11px;
+              "
+              >chat:session:{sessionId}</code
+            >
+          </div>
+          <div class="li">
+            <span>💾</span>Store last <span class="po">10 turns</span> as JSON
+            array (sliding window)
+          </div>
+          <div class="li">
+            <span>⏱️</span>TTL: <span class="po">24 hours</span> per session
+          </div>
+          <div class="li">
+            <span>📖</span>Include full history in every LLM call for context
+            continuity
+          </div>
+        </div>
+
+        <span class="ph">## What To Build First — Phase 1</span>
+        <div class="pblock" style="border-color: #16a34a">
+          <div class="li">
+            <span class="pg">1.</span>Project scaffold + docker-compose.yml
+          </div>
+          <div class="li">
+            <span class="pg">2.</span>Postgres pgvector setup + Typesense client
+            setup
+          </div>
+          <div class="li">
+            <span class="pg">3.</span>MDX parser for Fumadocs content
+          </div>
+          <div class="li">
+            <span class="pg">4.</span>Ingestion pipeline (chunk → embed →
+            upsert)
+          </div>
+          <div class="li">
+            <span class="pg">5.</span>Basic hybrid search function
+          </div>
+          <div class="li">
+            <span class="pg">6.</span>Simple /chat/stream endpoint (1-pass RAG,
+            no agent loop yet)
+          </div>
+          <div class="li">
+            <span class="pg">7.</span>Test end-to-end: ingest 5 MDX files, ask a
+            question, get a streamed answer
+          </div>
+        </div>
+        <div
+          style="
+            background: #1e293b;
+            border: 1px solid #f97316;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #fdba74;
+            margin-bottom: 12px;
+          "
+        >
+          Phase 2 (after Phase 1 works): Add the agentic loop, reranker, Redis
+          memory, feedback endpoint.
+        </div>
+
+        <span class="ph">## Code Requirements</span>
+        <div class="pblock">
+          <div class="li"><span>✅</span>TypeScript strict mode throughout</div>
+          <div class="li">
+            <span>✅</span>Async/await everywhere — no callbacks
+          </div>
+          <div class="li"><span>✅</span>Zod validation on all inputs</div>
+          <div class="li">
+            <span>✅</span>Error handling — retrieval failure degrades
+            gracefully (answer from LLM knowledge, not crash)
+          </div>
+          <div class="li">
+            <span>✅</span>Rate limiting:
+            <span class="po">60 req/min per API key</span> (hono rate-limit
+            middleware)
+          </div>
+          <div class="li">
+            <span>✅</span>CORS configured for Fumadocs origin
+          </div>
+          <div class="li">
+            <span>✅</span>All secrets via .env — never hardcoded
+          </div>
+          <div class="li">
+            <span>✅</span>README with local setup instructions
+          </div>
+        </div>
+
+        <span class="ph">## Output</span>
+        Provide
+        <strong style="color: #fff">complete working code files</strong>, not
+        pseudocode. Include <span class="po">package.json</span> with pinned
+        versions, <span class="po">tsconfig.json</span>,
+        <span class="po">docker-compose.yml</span>, and
+        <span class="po">.env.example</span>.
+      </div>
+    </div>
+
+    <!-- ─── 06 ─── -->
+    <div class="section-title">06 — Full Tech Stack</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Layer</th>
+          <th>Technology</th>
+          <th>Why</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Runtime</td>
+          <td class="tech">Node.js 20 + TypeScript</td>
+          <td class="why">
+            Your chosen language. Full async, great OpenAI SDK support
+          </td>
+          <td><span class="badge b-req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Framework</td>
+          <td class="tech">Hono</td>
+          <td class="why">
+            Faster than Express, native SSE support, TypeScript-first
+          </td>
+          <td><span class="badge b-req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Primary LLM</td>
+          <td class="tech">OpenAI GPT-4o</td>
+          <td class="why">Generation + function calling for agentic loop</td>
+          <td><span class="badge b-have">Key provided ✓</span></td>
+        </tr>
+        <tr>
+          <td>Embeddings</td>
+          <td class="tech">text-embedding-3-large</td>
+          <td class="why">Best OpenAI embedding model — same key</td>
+          <td><span class="badge b-have">Key provided ✓</span></td>
+        </tr>
+        <tr>
+          <td>Query rewriting</td>
+          <td class="tech">GPT-4o-mini</td>
+          <td class="why">Same key, cheap model for pre-retrieval rewrite</td>
+          <td><span class="badge b-have">Key provided ✓</span></td>
+        </tr>
+        <tr>
+          <td>Vector DB</td>
+          <td class="tech">PostgreSQL 16 + pgvector</td>
+          <td class="why">
+            Stores embeddings — just a Postgres extension, no new DB service
+          </td>
+          <td><span class="badge b-free">Free · Docker</span></td>
+        </tr>
+        <tr>
+          <td>Keyword search</td>
+          <td class="tech">Typesense</td>
+          <td class="why">
+            BM25 for hybrid retrieval. Lightweight, self-hosted, open source
+          </td>
+          <td><span class="badge b-free">Free · Docker</span></td>
+        </tr>
+        <tr>
+          <td>Reranker</td>
+          <td class="tech">Cohere Rerank v3.5</td>
+          <td class="why">
+            Re-orders top-20 to top-5. Free tier: 1000 calls/month
+          </td>
+          <td><span class="badge b-free">Free tier</span></td>
+        </tr>
+        <tr>
+          <td>Memory</td>
+          <td class="tech">Redis 7 (ioredis)</td>
+          <td class="why">
+            Conversation history per session. ~50MB RAM via Docker
+          </td>
+          <td><span class="badge b-free">Free · Docker</span></td>
+        </tr>
+        <tr>
+          <td>Streaming</td>
+          <td class="tech">SSE via Hono</td>
+          <td class="why">
+            Compatible with Vercel AI SDK useChat hook in Fumadocs
+          </td>
+          <td><span class="badge b-req">Required</span></td>
+        </tr>
+        <tr>
+          <td>MDX parsing</td>
+          <td class="tech">gray-matter + remark</td>
+          <td class="why">
+            Reads Fumadocs MDX — extracts frontmatter + clean text
+          </td>
+          <td><span class="badge b-req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Config</td>
+          <td class="tech">zod + dotenv</td>
+          <td class="why">
+            Typed env vars — fails fast if a required key is missing
+          </td>
+          <td><span class="badge b-req">Required</span></td>
+        </tr>
+        <tr>
+          <td>Observability</td>
+          <td class="tech">Langfuse</td>
+          <td class="why">
+            Trace every agent call and retrieval. Free tier / self-hosted
+          </td>
+          <td><span class="badge b-opt">Optional</span></td>
+        </tr>
+        <tr>
+          <td>Frontend widget</td>
+          <td class="tech">Vercel AI SDK (useChat)</td>
+          <td class="why">
+            Add to Fumadocs. Handles SSE streaming + message state
+          </td>
+          <td><span class="badge b-req">Add to Fumadocs</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ─── 07 ─── -->
+    <div class="section-title">07 — Environment Variables</div>
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Variable</th>
+          <th>Example</th>
+          <th>Where to get it</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="env-key">OPENAI_API_KEY</td>
+          <td class="env-val">sk-proj-...</td>
+          <td class="env-src">Already provided by your company</td>
+          <td class="env-have">✓ Have it</td>
+        </tr>
+        <tr>
+          <td class="env-key">COHERE_API_KEY</td>
+          <td class="env-val">co-...</td>
+          <td class="env-src">dashboard.cohere.com → free signup → API Keys</td>
+          <td class="env-req">Get free key</td>
+        </tr>
+        <tr>
+          <td class="env-key">DATABASE_URL</td>
+          <td class="env-val">postgresql://user:pass@localhost:5432/chatbot</td>
+          <td class="env-src">Your Docker Postgres (set in docker-compose)</td>
+          <td class="env-req">From docker-compose</td>
+        </tr>
+        <tr>
+          <td class="env-key">REDIS_URL</td>
+          <td class="env-val">redis://localhost:6379</td>
+          <td class="env-src">Your Docker Redis</td>
+          <td class="env-req">From docker-compose</td>
+        </tr>
+        <tr>
+          <td class="env-key">TYPESENSE_API_KEY</td>
+          <td class="env-val">localkey123</td>
+          <td class="env-src">You set this in docker-compose.yml</td>
+          <td class="env-req">Set by you</td>
+        </tr>
+        <tr>
+          <td class="env-key">TYPESENSE_HOST</td>
+          <td class="env-val">localhost</td>
+          <td class="env-src">Docker host</td>
+          <td class="env-req">localhost for dev</td>
+        </tr>
+        <tr>
+          <td class="env-key">API_SECRET_KEY</td>
+          <td class="env-val">32-char hex string</td>
+          <td class="env-src">
+            node -e
+            "console.log(require('crypto').randomBytes(32).toString('hex'))"
+          </td>
+          <td class="env-req">Generate locally</td>
+        </tr>
+        <tr>
+          <td class="env-key">ALLOWED_ORIGIN</td>
+          <td class="env-val">http://localhost:3000</td>
+          <td class="env-src">Your Fumadocs dev URL</td>
+          <td class="env-req">Your Fumadocs port</td>
+        </tr>
+        <tr>
+          <td class="env-key">LANGFUSE_SECRET_KEY</td>
+          <td class="env-val">sk-lf-...</td>
+          <td class="env-src">cloud.langfuse.com (free signup)</td>
+          <td class="env-opt">Optional</td>
+        </tr>
+        <tr>
+          <td class="env-key">LANGFUSE_PUBLIC_KEY</td>
+          <td class="env-val">pk-lf-...</td>
+          <td class="env-src">cloud.langfuse.com</td>
+          <td class="env-opt">Optional</td>
+        </tr>
+        <tr>
+          <td class="env-key">PORT</td>
+          <td class="env-val">8000</td>
+          <td class="env-src">Backend server port</td>
+          <td class="env-opt">Default: 8000</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- ─── 08 ─── -->
+    <div class="section-title">08 — Local Setup Order</div>
+    <div class="step-grid">
+      <div class="step">
+        <div class="step-n">1</div>
+        <div>
+          <h4>Get your only missing key — Cohere (free)</h4>
+          <p>
+            Go to dashboard.cohere.com, sign up free, grab API key. 2 minutes.
+            You already have OpenAI.
+          </p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">2</div>
+        <div>
+          <h4>Install Docker Desktop</h4>
+          <p>
+            One command starts Postgres+pgvector, Redis, and Typesense. No
+            separate installs.
+          </p>
+          <code>docker-compose up -d</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">3</div>
+        <div>
+          <h4>Scaffold the Node.js project from Claude's output</h4>
+          <p>
+            Take Claude's generated code, place it in chatbot-ai/, install
+            dependencies.
+          </p>
+          <code>npm install</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">4</div>
+        <div>
+          <h4>Fill in .env</h4>
+          <p>
+            OPENAI_API_KEY (from company), COHERE_API_KEY (just created).
+            DATABASE_URL and REDIS_URL auto-filled from docker-compose.
+          </p>
+          <code>cp .env.example .env</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">5</div>
+        <div>
+          <h4>Run ingestion against your Fumadocs content folder</h4>
+          <p>
+            Point it at your existing MDX files. It embeds and indexes them into
+            pgvector + Typesense.
+          </p>
+          <code
+            >npx ts-node src/ingestion/pipeline.ts --source
+            ../your-fumadocs/content</code
+          >
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">6</div>
+        <div>
+          <h4>Start the backend and test</h4>
+          <p>
+            Hit /chat/stream with a question and verify you get a streamed
+            response with citations.
+          </p>
+          <code>npm run dev</code>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-n">7</div>
+        <div>
+          <h4>Add chat widget to Fumadocs</h4>
+          <p>
+            Install Vercel AI SDK in your Fumadocs project. Drop in the
+            ChatWidget component.
+          </p>
+          <code
+            >npm install ai @ai-sdk/react &nbsp;&nbsp;(in your Fumadocs
+            project)</code
+          >
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── 09 ─── -->
+    <div class="section-title">09 — Implementation Milestones</div>
+    <div class="milestones">
+      <div class="ms ms1">
+        <div class="wk">Week 1–2</div>
+        <h4>🏗️ Foundation</h4>
+        <ul>
+          <li><span>□</span>Node.js + Hono scaffold</li>
+          <li><span>□</span>docker-compose (Postgres, Redis, Typesense)</li>
+          <li><span>□</span>MDX parser for Fumadocs files</li>
+          <li><span>□</span>Ingestion pipeline</li>
+          <li><span>□</span>Basic vector search</li>
+          <li><span>□</span>1-pass /chat/stream endpoint</li>
+        </ul>
+      </div>
+      <div class="ms ms2">
+        <div class="wk">Week 3–4</div>
+        <h4>✨ Quality</h4>
+        <ul>
+          <li><span>□</span>Hybrid search (BM25 + vector)</li>
+          <li><span>□</span>Cohere reranker</li>
+          <li><span>□</span>Redis conversation memory</li>
+          <li><span>□</span>Query rewriting (GPT-4o-mini)</li>
+          <li><span>□</span>Source citations in responses</li>
+          <li><span>□</span>Fumadocs widget integration</li>
+        </ul>
+      </div>
+      <div class="ms ms3">
+        <div class="wk">Week 5–6</div>
+        <h4>🧠 Agentic Loop</h4>
+        <ul>
+          <li><span>□</span>OpenAI function calling tools</li>
+          <li><span>□</span>Agent loop (max 5 iterations)</li>
+          <li><span>□</span>Simple/agentic router</li>
+          <li><span>□</span>Show tool calls in stream</li>
+          <li><span>□</span>Langfuse tracing</li>
+        </ul>
+      </div>
+      <div class="ms ms4">
+        <div class="wk">Week 7–8</div>
+        <h4>🚀 Production</h4>
+        <ul>
+          <li><span>□</span>Rate limiting + auth</li>
+          <li><span>□</span>Feedback endpoint (👍👎)</li>
+          <li><span>□</span>Content gap detection</li>
+          <li><span>□</span>Deploy backend (Railway/Fly.io)</li>
+          <li><span>□</span>Update Fumadocs CORS origin</li>
+        </ul>
+      </div>
+    </div>
+
+    <div
+      style="
+        background: #0d2818;
+        border: 1px solid #16a34a;
+        border-radius: 12px;
+        padding: 20px;
+      "
+    >
+      <div
+        style="
+          font-size: 13px;
+          font-weight: 700;
+          color: #4ade80;
+          margin-bottom: 10px;
+        "
+      >
+        ✅ To start RIGHT NOW you only need:
+      </div>
+      <div style="display: flex; gap: 32px; flex-wrap: wrap">
+        <div style="font-size: 13px; color: #e2e8f0">
+          1. <strong>OpenAI key</strong> — ✓ already have it
+        </div>
+        <div style="font-size: 13px; color: #e2e8f0">
+          2. <strong>Cohere key</strong> — free signup, 2 min
+        </div>
+        <div style="font-size: 13px; color: #e2e8f0">
+          3. <strong>Docker Desktop</strong> — runs all local services
+        </div>
+        <div style="font-size: 13px; color: #e2e8f0">
+          4. <strong>Node.js 20+</strong> — likely already installed
+        </div>
+      </div>
+      <div style="font-size: 12px; color: #475569; margin-top: 10px">
+        Hit the "Copy prompt" button in Section 05 → paste into Claude → it
+        scaffolds the entire Phase 1 project for you.
+      </div>
+    </div>
+  </body>
+</html>
